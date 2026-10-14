@@ -26,9 +26,13 @@ void cpu::execute(MemoryBus &memory) {
         case 0x05: { B = dec_8_bits(B, 4); break; }// DEC B (1 M-cycle) - Decremento de 8 bits (actualiza Z, N, H)
         case 0x06: { ld_8_bits(B, memory, 8); break; }// LD B, d8 (2 M-cycles) - Carga un byte inmediato de ROM a B
         case 0x07: {RLCA(); break;};
-        default:
-            std::cout << "Opcode not found: 0x" << std::hex << (int)current_op_code << "\n";
-            break;
+        case 0x08: {ld_a16_(SP, memory, 20);  break;} // 5 M-cycles; break;
+
+       default:
+            std::cerr << "Opcode NO implementado: 0x" 
+                    << std::hex << (int)current_op_code 
+                    << " en PC: 0x" << (PC - 1) << "\n";
+            std::exit(1);
     }
 }
 void cpu::set_flag(uint8_t flag_mask, bool condition){
@@ -111,3 +115,14 @@ void cpu::RLCA(){
 }
 
 
+void cpu::ld_a16_(uint16_t reg, MemoryBus& memory, uint8_t cycles_cost){
+    uint16_t address = fetch_word(memory);
+    memory.write_word(address, reg);
+    cycles += cycles_cost; // 5 M-cycles
+}
+
+void cpu::ld_a16_8bits(uint8_t reg, MemoryBus& memory, uint8_t cycles_cost){
+    uint16_t address = fetch_word(memory);
+    memory.write_byte(address, reg);
+    cycles += cycles_cost; // 5 M-cycles
+}

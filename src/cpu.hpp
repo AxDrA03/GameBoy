@@ -43,7 +43,7 @@ public:
     
 private:
     void execute_cb (MemoryBus& memory);
-
+    
     void ld_8_bits(uint8_t& reg, MemoryBus& memory, const uint8_t cycles_cost); 
     void ld_16_bits(uint16_t& reg, MemoryBus& memory, const uint8_t cycles_cost); 
     
@@ -52,6 +52,10 @@ private:
     
     void inc_16_bits(uint16_t& reg, uint8_t cycles_cost);
     void dec_16bits(uint16_t& reg, uint8_t cycles_cost);
+
+    void ld_a16_(uint16_t reg, MemoryBus& memory, uint8_t cycles_cos);
+    void ld_a16_8bits(uint8_t reg, MemoryBus& memory, uint8_t cycles_cos);
+
 
     void RLCA(); 
 

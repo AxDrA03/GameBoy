@@ -1,0 +1,3 @@
+/home/axdra/Documents/programing/GamBoy/build/CMakeFiles/GameBoy.dir
+/home/axdra/Documents/programing/GamBoy/build/CMakeFiles/edit_cache.dir
+/home/axdra/Documents/programing/GamBoy/build/CMakeFiles/rebuild_cache.dir

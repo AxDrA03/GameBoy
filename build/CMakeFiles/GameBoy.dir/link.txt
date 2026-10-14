@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,--dependency-file=CMakeFiles/GameBoy.dir/link.d CMakeFiles/GameBoy.dir/main.cpp.o CMakeFiles/GameBoy.dir/src/cpu.cpp.o CMakeFiles/GameBoy.dir/src/MemoryBus.cpp.o -o GameBoy
