@@ -1,5 +1,10 @@
 #include "cpu.hpp"
 
+cpu::cpu(){
+    reset();
+}
+
+
 void cpu::reset(){
     AF = 0X01B0; 
     BC = 0X0013; 
@@ -70,7 +75,7 @@ void cpu::ld_8_bits(uint8_t& reg, MemoryBus& memory, uint8_t cycles_cost){
 }
 
 uint8_t cpu::inc_8_bits(uint8_t& reg, uint8_t cycles_cost){
-    bool half_carry = (B & 0x0F) == 0x0F; 
+    bool half_carry = (reg & 0x0F) == 0x0F; 
     reg++;
     cycles+=cycles_cost; 
     set_flag( FLAG_Z, reg == 0); 
@@ -80,12 +85,13 @@ uint8_t cpu::inc_8_bits(uint8_t& reg, uint8_t cycles_cost){
     return reg;
 }
 
-void cpu::inc_16_bits(uint16_t& reg, uint8_t cycles){
+void cpu::inc_16_bits(uint16_t& reg, uint8_t cycles_cost){
     reg++; 
+    cycles += cycles_cost;
 }
 
 uint8_t cpu::dec_8_bits(uint8_t& reg, uint8_t cycles_cost){
-    bool half_carry = (B & 0x0F) == 0; 
+    bool half_carry = (reg & 0x0F) == 0; 
     reg--; 
     cycles += cycles_cost;
     set_flag(FLAG_Z, B==0); 

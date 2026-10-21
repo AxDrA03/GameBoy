@@ -7,15 +7,23 @@ class cpu {
 
 public:
     // Registers
-    union { struct { uint8_t F; uint8_t A; }; 
-        uint16_t AF; };
-    union { struct { uint8_t C; uint8_t B; }; 
-        uint16_t BC; };
-    union { struct { uint8_t E; uint8_t D; }; 
-        uint16_t DE; };
-    union { struct { uint8_t L; uint8_t H; }; 
-        uint16_t HL; };
+    union {
+        uint8_t regs[8];
+        uint16_t regs_16[4];
+        struct {
+            union { struct { uint8_t C; uint8_t B; }; uint16_t BC; };
+            union { struct { uint8_t E; uint8_t D; }; uint16_t DE; };
+            union { struct { uint8_t L; uint8_t H; }; uint16_t HL; };
+            union { struct { uint8_t F; uint8_t A; }; uint16_t AF; };
+        };
+    };
     
+    static constexpr uint8_t reg_offset[8] = {1, 0, 3, 2, 5, 4, 6, 7}; 
+
+    uint8_t read_r(int idx, MemoryBus& memory) const;
+    void write_r(int idx, uint8_t v,MemoryBus& memory);
+
+
     //uint16_t AF; //Acumulstor&Flags 
 
     uint16_t SP{0x0000};//Stack Pointer
@@ -29,8 +37,9 @@ public:
 
     uint8_t current_op_code = 0; 
     uint32_t instrucction_counter = 0; 
-    uint64_t cycles = 0;
-
+    uint64_t cycles = 0; // 4 T-cyles = M-cycles que son los valores 
+   
+    cpu();
     void reset(); 
     void fetch(MemoryBus &memory); //Read from memory bus 
     void execute(MemoryBus &memory);    
