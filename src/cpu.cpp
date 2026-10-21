@@ -8,8 +8,8 @@ cpu::cpu(){
 void cpu::reset(){
     AF = 0X01B0; 
     BC = 0X0013; 
-    DE = 0X0013; 
-    HL = 0X00D8; 
+    DE = 0X00D8; 
+    HL = 0X014D; 
     SP = 0XFFFE; 
     PC = 0X0100; 
 }
@@ -94,7 +94,7 @@ uint8_t cpu::dec_8_bits(uint8_t& reg, uint8_t cycles_cost){
     bool half_carry = (reg & 0x0F) == 0; 
     reg--; 
     cycles += cycles_cost;
-    set_flag(FLAG_Z, B==0); 
+    set_flag(FLAG_Z, reg == 0); 
     set_flag(FLAG_N, true); 
     set_flag(FLAG_H, half_carry);
 
