@@ -18,18 +18,66 @@ void cpu::fetch( MemoryBus &memory){
     current_op_code = fetch_byte(memory); 
 }
 
+uint8_t& cpu::reg8(int idx) {
+    return regs[reg_offset[idx]];
+}
 
 void cpu::execute(MemoryBus &memory) {
     instrucction_counter++; 
 
+    const int y = (current_op_code >> 3 & 7); 
+    const int z = current_op_code & 7;
+
+    const int pair = (current_op_code >> 4) & 3; 
+
+    //LD 
+    if ( current_op_code >= 0x40 && current_op_code <= 0x7F && current_op_code != 0x76){
+        if (y == 6) memory.write_byte(HL, reg8(z)); 
+        else if ( z == 6) reg8(y) = memory.read_byte(HL); 
+        else reg8(y) = reg8(z);
+        cycles += (y == 6 || z == 6) ? 8 : 4; 
+        return;
+    }
+
+    if (current_op_code < 0x40 && z == 6){
+        if( y == 6 ){ memory.write_byte(HL, fetch_byte(memory)); cycles += 12; }
+        else {ld_8_bits( reg8(y), memory, 8);};
+        return;
+    }
+    
+    if ((current_op_code & 0xCF) == 0x01 ){
+        ld_16_bits(regs_16[pair], memory, 12); 
+        return;
+    }
+    //INC && DEC 
+    if ( current_op_code < 0x40 && (z == 4 || z == 5) ){
+        if ( y == 6 ) {
+            uint8_t v = memory.read_byte(HL);
+            if( z == 4 ) inc_8_bits(v, 12); 
+            else dec_8_bits (v, 12); 
+            memory.write_byte(HL, v); 
+        }
+        else {
+            if (z == 4) inc_8_bits (reg8(y), 4); 
+            else dec_8_bits (reg8(y), 4);
+        }
+        return;
+    }
+
+    //inc 16 bits
+    if( (current_op_code & 0xCF) == 0x03 ){
+        inc_16_bits(regs_16[pair], 8); 
+    }
+    //dec 16 bits
+    if( (current_op_code & 0xCF) == 0x0B ){
+        inc_16_bits(regs_16[pair], 8); 
+    }
+
+
     switch (current_op_code) {
         case 0x00: {cycles += 4; break;}// NOP (1 M-cycle)
-        case 0x01: { ld_16_bits(BC, memory, 12); break;} // LD BC, d16 (3 M-cycles)
         case 0x02: {  memory.write_byte(BC, A); cycles += 8; break; } // LD (BC), A (2 M-cycles) - Escribe A en la memoria RAM en la dirección BC
-        case 0x03: { inc_16_bits(BC, 8);break; } // INC BC (2 M-cycles) - Incremento de 16 bits (sin banderas)
-        case 0x04: { B = inc_8_bits(B, 4); break; } // INC B (1 M-cycle) - Incremento de 8 bits (actualiza Z, N, H)
-        case 0x05: { B = dec_8_bits(B, 4); break; }// DEC B (1 M-cycle) - Decremento de 8 bits (actualiza Z, N, H)
-        case 0x06: { ld_8_bits(B, memory, 8); break; }// LD B, d8 (2 M-cycles) - Carga un byte inmediato de ROM a B
+        case 0x03: { inc_16_bits(BC, 8);break; } // INC BC (2 M-cycles) - Incremento de 16 bits (sin banderas)        case 0x04: { B = inc_8_bits(B, 4); break; } // INC B (1 M-cycle) - Incremento de 8 bits (actualiza Z, N, H)        case 0x06: { ld_8_bits(B, memory, 8); break; }// LD B, d8 (2 M-cycles) - Carga un byte inmediato de ROM a B
         case 0x07: {RLCA(); break;};
         case 0x08: {ld_a16_(SP, memory, 20);  break;} // 5 M-cycles; break;
 
@@ -40,6 +88,7 @@ void cpu::execute(MemoryBus &memory) {
             std::exit(1);
     }
 }
+
 void cpu::set_flag(uint8_t flag_mask, bool condition){
     if(condition)
         F |= flag_mask;
@@ -87,6 +136,11 @@ uint8_t cpu::inc_8_bits(uint8_t& reg, uint8_t cycles_cost){
 
 void cpu::inc_16_bits(uint16_t& reg, uint8_t cycles_cost){
     reg++; 
+    cycles += cycles_cost;
+}
+
+void cpu::dec_16bits(uint16_t& reg, uint8_t cycles_cost){
+    reg--; 
     cycles += cycles_cost;
 }
 

@@ -19,11 +19,9 @@ public:
     };
     
     static constexpr uint8_t reg_offset[8] = {1, 0, 3, 2, 5, 4, 6, 7}; 
-
-    uint8_t read_r(int idx, MemoryBus& memory) const;
-    void write_r(int idx, uint8_t v,MemoryBus& memory);
-
-
+    uint8_t& reg8(int idx);
+    uint16_t& reg16(int idx);
+    
     //uint16_t AF; //Acumulstor&Flags 
 
     uint16_t SP{0x0000};//Stack Pointer
